@@ -2,6 +2,7 @@ const {
   getMetaThumb,
   getScrapedThumb,
   getMetaTitle,
+  getScrapedTitle,
   getFavicon,
 } = require("../helpers/linkHelper");
 const LinkModel = require("../models/LinkModel");
@@ -21,19 +22,12 @@ const postLinks = async (req, res) => {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     for (let i = 0; i < arr.length; i++) {
+      global.socket.emit(
+        "linkProcessEvent",
+        `Processing link ${i + 1}/${arr.length}`
+      );
       await page.goto(arr[i]);
-      //monitor requests
-      // await page.setRequestInterception(true);
-      //check resourceType is script
-      // page.on("request", (request) => {
-        // if (request.resourceType() === "script") {
-          // console.log("-----------------------")
-          // request.abort();
-          // console.log("-----------------------")
-        // } else {
-          // request.continue();
-        // }
-      // });
+
       let thumb = await getMetaThumb(page);
       if (!thumb) {
         thumb = await getScrapedThumb(page);
@@ -42,6 +36,12 @@ const postLinks = async (req, res) => {
         thumb = null;
       }
       let title = await getMetaTitle(page);
+      if (!title) {
+        title = await getScrapedTitle(page);
+      }
+      if (!title) {
+        title = null;
+      }
       let favicon = await getFavicon(page);
       let url = arr[i];
       responseData.push({

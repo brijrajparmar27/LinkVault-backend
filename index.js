@@ -1,27 +1,40 @@
 require("dotenv").config();
-const cors = require("cors")
+const cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
 const socketio = require("socket.io");
 const linkRouter = require("./routes/linkRoutes");
+const http = require("http");
 
 const app = express();
-app.use(cors())
-app.use(express.json());
+const server = http.createServer(app);
+const io = socketio(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
-app.use("/api",linkRouter);
+io.on("connection", (socket) => {
+  global.socket = socket;
+  console.log("A user connected");
 
-mongoose.connect(process.env.MONGO).then(()=>{
-  console.log("connecting to mongodb...")
-  app.listen("3000", () => {
-    console.log("listening at port 3000");
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
   });
-  // const collection = mongoose.connection.collection('links')
-  // const watcher = collection.watch();
-  // watcher.on('change',(change)=>{
-  //   console.log(change);
-  // })
-}).catch(err=>{
-  console.log(err.message);
-})
+});
 
+app.use(cors());
+app.use(express.json());
+app.use("/api", linkRouter);
+
+mongoose
+  .connect(process.env.MONGO)
+  .then(() => {
+    console.log("connecting to mongodb...");
+    server.listen("3000", () => {
+      console.log("listening at port 3000");
+    });
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });

@@ -42,6 +42,36 @@ const getMetaTitle = async (page) => {
 
   return MetaTitle;
 };
+const getScrapedTitle = async (page) => {
+  try {
+    var ScrapTitle = await page.evaluate(() => {
+      // Create an XPath expression to select meta tags with name='title'
+      var xpathExpression = "//meta[@name='title']";
+
+      // Use document.evaluate() to search for meta tags
+      var result = document.evaluate(
+        xpathExpression,
+        document,
+        null,
+        XPathResult.ANY_TYPE,
+        null
+      );
+
+      // Iterate through the results
+      var metaTags = [];
+      var node;
+      while ((node = result.iterateNext())) {
+        metaTags.push(node);
+      }
+
+      return metaTags[0].content;
+    });
+  } catch (err) {
+    console.log(err);
+  }
+
+  return ScrapTitle;
+};
 const getFavicon = async (page) => {
   try {
     var faviconHref = await page.$$eval(
@@ -62,5 +92,6 @@ module.exports = {
   getMetaThumb,
   getScrapedThumb,
   getMetaTitle,
+  getScrapedTitle,
   getFavicon,
 };
