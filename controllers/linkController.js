@@ -21,6 +21,7 @@ const postLinks = async (req, res) => {
   try {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
+    console.time("fetchlinks");
     for (let i = 0; i < arr.length; i++) {
       global.socket.emit(
         "linkProcessEvent",
@@ -52,6 +53,7 @@ const postLinks = async (req, res) => {
       });
       console.log("pushed ", i);
     }
+    console.timeEnd("fetchlinks");
     browser.close();
   } catch (err) {
     res.json(err).status(500);
