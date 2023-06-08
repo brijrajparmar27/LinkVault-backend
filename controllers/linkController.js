@@ -15,49 +15,44 @@ const fetchLinks = async (req, res) => {
 
 const postLinks = async (req, res) => {
   const { data } = req.body;
-  var responseData = [];
   console.log("array created");
   let arr = JSON.parse(data);
+
   try {
     const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
-    for (let i = 0; i < arr.length; i++) {
+    
+    const linkProcessingPromises = arr.map(async (url, i) => {
+      console.log("processing url ", url)
+      const page = await browser.newPage();
       global.socket.emit(
         "linkProcessEvent",
         `Processing link ${i + 1}/${arr.length}`
       );
-      await page.goto(arr[i]);
+      await page.goto(url);
 
-      let thumb = await getMetaThumb(page);
-      if (!thumb) {
-        thumb = await getScrapedThumb(page);
-      }
-      if (!thumb) {
-        thumb = null;
-      }
-      let title = await getMetaTitle(page);
-      if (!title) {
-        title = await getScrapedTitle(page);
-      }
-      if (!title) {
-        title = null;
-      }
+      let thumb = await getMetaThumb(page) || await getScrapedThumb(page);
+      let title = await getMetaTitle(page) || await getScrapedTitle(page);
       let favicon = await getFavicon(page);
-      let url = arr[i];
-      responseData.push({
-        title,
+
+      return {
+        title: title || null,
         favicon,
         url,
-        thumb,
-      });
-      console.log("pushed ", i);
-    }
+        thumb: thumb || null,
+      };
+    });
+    console.time("scrapLinks")
+    const responseData = await Promise.all(linkProcessingPromises);
+    console.timeEnd("scrapLinks")
     browser.close();
+
+    console.log("response sent");
+    res.json(responseData).status(200);
   } catch (err) {
-    res.json(err).status(500);
+    console.error(err);
+    res.status(500).json(err);
   }
-  console.log("response sent");
-  res.json(responseData).status(200);
 };
+
 
 module.exports = { fetchLinks, postLinks };
