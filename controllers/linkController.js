@@ -20,22 +20,26 @@ const postLinks = async (req, res) => {
 
   try {
     const browser = await puppeteer.launch({ headless: true });
-    
+    let processedCount = 0;
     const linkProcessingPromises = arr.map(async (url, i) => {
+      
       console.log("processing url ", url)
       const page = await browser.newPage();
-      global.socket.emit(
-        "linkProcessEvent",
-        `Processing link ${i + 1}/${arr.length}`
-      );
+      
       await page.goto(url);
-
+      
       let thumb = await getMetaThumb(page) || await getScrapedThumb(page);
       let title = await getMetaTitle(page) || await getScrapedTitle(page);
       let favicon = await getFavicon(page);
+      
+      global.socket.emit(
+        "linkProcessEvent",
+        `Processing link ${processedCount + 1}/${arr.length}`
+      );
+      processedCount++;
 
       return {
-        title: title || null,
+        title: title || url,
         favicon,
         url,
         thumb: thumb || null,
