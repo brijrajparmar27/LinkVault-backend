@@ -14,13 +14,16 @@ const fetchLinks = async (req, res) => {
 };
 
 const postLinks = async (req, res) => {
+
   const { data } = req.body;
+  
   console.log("array created");
   let arr = JSON.parse(data);
 
   try {
     const browser = await puppeteer.launch({ headless: true });
     let processedCount = 0;
+
     const linkProcessingPromises = arr.map(async (url, i) => {
       
       console.log("processing url ", url)
@@ -45,18 +48,28 @@ const postLinks = async (req, res) => {
         thumb: thumb || null,
       };
     });
+
     console.time("scrapLinks")
-    const responseData = await Promise.all(linkProcessingPromises);
+    var responseData = await Promise.all(linkProcessingPromises);
     console.timeEnd("scrapLinks")
     browser.close();
+    } catch (err) {
+      console.error(err);
+      res.status(500).json(err);
+      return;
+    }
 
     console.log("response sent");
-    res.json(responseData).status(200);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(err);
-  }
-};
+    
+    LinkModel.insertMany(responseData).then((data)=>{
+      console.log("data sent");
+      console.log(data);
+      res.json(data).status(200);
+    }).catch((e)=>{
+      console.log(e.message);
+    })
+
+  };
 
 
 module.exports = { fetchLinks, postLinks };

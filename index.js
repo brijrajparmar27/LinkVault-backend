@@ -27,15 +27,15 @@ app.use(cors());
 app.use(express.json());
 app.use("/api", linkRouter);
 
-// mongoose
-//   .connect(process.env.MONGO)
-//   .then(() => {
-//     console.log("connecting to mongodb...");
-//   })
-//   .catch((err) => {
-//     console.log(err.message);
-//   });
-  
-  server.listen("3000", () => {
-    console.log("listening at port 3000");
+mongoose
+  .connect(process.env.MONGO)
+  .then(() => {
+    console.log("connecting to mongodb...");
+    server.listen("3000", () => {
+      console.log("listening at port 3000");
+    });
+  })
+  .catch((err) => {
+    console.log(err.message);
   });
+  
