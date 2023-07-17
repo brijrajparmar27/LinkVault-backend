@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const socketio = require("socket.io");
 const linkRouter = require("./routes/linkRoutes");
 const http = require("http");
+const userRouter = require("./routes/userRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +26,7 @@ io.on("connection", (socket) => {
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/user", userRouter);
 app.use("/api", linkRouter);
 
 mongoose
@@ -38,4 +40,3 @@ mongoose
   .catch((err) => {
     console.log(err.message);
   });
-  
