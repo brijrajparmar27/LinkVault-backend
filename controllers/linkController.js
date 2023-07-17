@@ -21,7 +21,7 @@ const postLinks = async (req, res) => {
   let arr = JSON.parse(data);
 
   try {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch();
     let processedCount = 0;
 
     const linkProcessingPromises = arr.map(async (url, i) => {
