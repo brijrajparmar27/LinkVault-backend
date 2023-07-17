@@ -9,12 +9,13 @@ const LinkModel = require("../models/LinkModel");
 const puppeteer = require("puppeteer");
 
 const fetchLinks = async (req, res) => {
-  const links = await LinkModel.find({});
+  const { id } = req.params;
+  const links = await LinkModel.find({createdBy: id});
   res.json(links).status(200);
 };
 
 const postLinks = async (req, res) => {
-  const { data } = req.body;
+  const { data, user } = req.body;
 
   console.log("array created");
   let arr = JSON.parse(data);
@@ -45,6 +46,7 @@ const postLinks = async (req, res) => {
         favicon,
         url,
         thumb: thumb || null,
+        createdBy: user,
       };
     });
 
@@ -59,7 +61,6 @@ const postLinks = async (req, res) => {
   }
 
   console.log("response sent");
-
   LinkModel.insertMany(responseData)
     .then((data) => {
       console.log("data sent");
