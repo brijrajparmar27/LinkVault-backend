@@ -33,8 +33,8 @@ mongoose
   .connect(process.env.MONGO)
   .then(() => {
     console.log("connecting to mongodb...");
-    server.listen("3000", () => {
-      console.log("listening at port 3000");
+    server.listen(process.env.PORT, () => {
+      console.log(`listening at port ${process.env.PORT}`);
     });
   })
   .catch((err) => {
