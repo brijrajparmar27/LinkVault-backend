@@ -10,7 +10,7 @@ const puppeteer = require("puppeteer");
 
 const fetchLinks = async (req, res) => {
   const { id } = req.params;
-  const links = await LinkModel.find({createdBy: id});
+  const links = await LinkModel.find({ createdBy: id });
   res.json(links).status(200);
 };
 
@@ -22,13 +22,13 @@ const postLinks = async (req, res) => {
 
   try {
     const browser = await puppeteer.launch({
-      args:[
+      args: [
         "--disable_setuid-sandbox",
         "--no-sandbox",
         "--single-process",
-        "--no-zygote"
+        "--no-zygote",
       ],
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
       // executablePath: puppeteer.executablePath()
     });
     let processedCount = 0;
@@ -36,7 +36,7 @@ const postLinks = async (req, res) => {
     const linkProcessingPromises = arr.map(async (url, i) => {
       console.log("processing url ", url);
       const page = await browser.newPage();
-      await page.goto(url);
+      await page.goto(url, { timeout: 0 });
 
       let thumb = (await getMetaThumb(page)) || (await getScrapedThumb(page));
       let title = (await getMetaTitle(page)) || (await getScrapedTitle(page));
