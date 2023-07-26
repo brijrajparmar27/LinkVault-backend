@@ -44,10 +44,10 @@ const postLinks = async (req, res) => {
 
       page.close();
 
-      global.socket.emit(
-        "linkProcessEvent",
-        `Processing link ${processedCount + 1}/${arr.length}`
-      );
+      global.socket.emit("linkProcessEvent", {
+        type: "MUTATE",
+        message: `Processing link ${processedCount + 1}/${arr.length}`,
+      });
       processedCount++;
 
       return {
@@ -60,11 +60,19 @@ const postLinks = async (req, res) => {
     });
 
     console.time("scrapLinks");
+    global.socket.emit("linkProcessEvent", {
+      type: "SHOW",
+      message: `Initializing URL's`,
+    });
     var responseData = await Promise.all(linkProcessingPromises);
     console.timeEnd("scrapLinks");
     browser.close();
   } catch (err) {
     console.error(err);
+    global.socket.emit("linkProcessEvent", {
+      type: "ERROR",
+      message: `${err.message}`,
+    });
     res.status(500).json(err);
     return;
   }
@@ -74,9 +82,18 @@ const postLinks = async (req, res) => {
     .then((data) => {
       console.log("data sent");
       console.log(data);
+      global.socket.emit("linkProcessEvent", {
+        type: "SUCCESS",
+        message: `Links Added`,
+      });
       res.json(data).status(200);
     })
     .catch((e) => {
+      global.socket.emit("linkProcessEvent", {
+        type: "ERROR",
+        message: `${err.message}`,
+      });
+      res.status(500).json(err);
       console.log(e.message);
     });
 };

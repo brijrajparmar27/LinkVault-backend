@@ -1,4 +1,5 @@
 const getMetaThumb = async (page) => {
+  console.log("fetching thumb");
   let MetaThumb = await page.evaluate(() => {
     let thumb = document.head
       .querySelector('meta[property="og:image"]')
