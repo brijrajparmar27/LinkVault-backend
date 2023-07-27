@@ -36,7 +36,7 @@ const postLinks = async (req, res) => {
     const linkProcessingPromises = arr.map(async (url, i) => {
       console.log("processing url ", url);
       const page = await browser.newPage();
-      await page.goto(url, { timeout: 0 });
+      await page.goto(url, { timeout: 0, waitUntil: "domcontentloaded" });
 
       let thumb = (await getMetaThumb(page)) || (await getScrapedThumb(page));
       let title = (await getMetaTitle(page)) || (await getScrapedTitle(page));
