@@ -14,9 +14,10 @@ const LinkSchema = mongoose.Schema({
   favicon: {
     type: String,
   },
-  createdBy:{
-    type: String
-  }
+  createdBy: {
+    type: String,
+  },
+  createdAt: { type: Date, expires: 60, default: Date.now },
 });
 
 module.exports = mongoose.model("link", LinkSchema, "links");
