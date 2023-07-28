@@ -17,7 +17,7 @@ const LinkSchema = mongoose.Schema({
   createdBy: {
     type: String,
   },
-  createdAt: { type: Date, expires: 60, default: Date.now },
+  // createdAt: { type: Date, expires: 60, default: Date.now },
 });
 
 module.exports = mongoose.model("link", LinkSchema, "links");
